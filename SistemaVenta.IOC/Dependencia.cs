@@ -26,9 +26,16 @@ namespace SistemaVenta.IOC
             });
             // Como es generico no va a tener un tipo de Entidad especifico (Iria aca <>) por eso es Transient.
             services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
             services.AddScoped<IVentaRepository, VentaRepository>();
 
             services.AddScoped<ICorreoService, CorreoService>();
+
+            services.AddScoped<IUtilidadesService, UtilidadesService>();
+
+            services.AddScoped<IRolService, RolService>();
+
+            services.AddScoped<IUsuarioService, UsuarioService>();
         }
 
     }
