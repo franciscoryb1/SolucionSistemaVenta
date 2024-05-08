@@ -13,9 +13,17 @@
         public string? NombreCliente { get; set; }
 
         public string? SubTotalVenta { get; set; }
+
+        public string? ImpuestoTotalventa { get; set; }
+
+        public string? Totalventa { get; set; }
+
         public string? Producto { get; set; }
+
         public int? Cantidad { get; set; }
+
         public string? Precio { get; set; }
+
         public string? Total { get; set; }
 
     }
