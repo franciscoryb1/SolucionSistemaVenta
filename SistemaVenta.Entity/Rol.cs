@@ -7,7 +7,7 @@ public partial class Rol
 {
     public Rol()
     {
-        RolMenus = new HashSet<RolMenu>)();
+        RolMenus = new HashSet<RolMenu>();
         Usuarios = new HashSet<Usuario> ();
     }
 

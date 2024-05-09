@@ -13,7 +13,7 @@ namespace SistemaVenta.AplicacionWeb.Models.ViewModels
         public string? Telefono { get; set; }
 
         public int? IdRol { get; set; }
-        public int? NombreRol { get; set; } 
+        public string? NombreRol { get; set; } 
 
         public string? UrlFoto { get; set; }
 
