@@ -1,16 +1,16 @@
 ﻿
 const MODELO_BASE = {
-    idUusario = 0,
-    nombre = "",
-    correo = "",
-    telefono = "",
-    idRol = 0,
-    esActivo = 1,
-    urlFoto = ""
-}
+    idUsuario: 0,
+    nombre: "",
+    correo: "",
+    telefono: "",
+    idRol: 0,
+    esActivo: 1,
+    urlFoto: ""
+};
 
 let tablaData;
-$(document).ready(function () {
+$(function () {
     tablaData = $('#tbdata').DataTable({
         responsive: true,
          "ajax": {
@@ -20,8 +20,12 @@ $(document).ready(function () {
          },
          "columns": [
              { "data": "idUsuario", "visible":false, "searchable":false },
-             { "data": "urlFoto", render: function (data) {
-                return `<img style="height:60px" src=${data} class="rounded mx-auto d-block"/>`},
+             //{
+             //    "data": "urlFoto", render: function (data) {
+             //        return `<img style="height:60px" src=${data} class="rounded mx-auto d-block"/>`
+             //    }
+             //},
+             { "data": "urlFoto"},
              { "data": "nombre" },
              { "data": "correo" },
              { "data": "telefono" },
@@ -29,10 +33,9 @@ $(document).ready(function () {
              {
                  "data": "esActivo", render: function (data) {
                      if (data == 1)
-                         return '<span class="badge badge-info">Activo<span/>'
+                         return '<span class="badge badge-info">Activo<span/>';
                      else
-                         return '<span class="badge badge-danger">No Activo<span/>',
-
+                         return '<span class="badge badge-danger">No Activo<span/>';
                  }
              },
              {
