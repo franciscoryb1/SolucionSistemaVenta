@@ -11,6 +11,22 @@ const MODELO_BASE = {
 
 let tablaData;
 $(function () {
+
+    fetch("Usuario/ListaRoles")
+        .then(response => {
+            return response.ok ? response.json() : Promise.reject(response);
+        })
+        .then(responseJson => {
+            if (responseJson.length > 0) {
+                responseJson.forEach((item) => {
+                    $("#cboRol").append(
+                        $("<option>").val(item.idRol).text(item.descripcion)
+                    )
+                })
+            }
+        })
+
+
     tablaData = $('#tbdata').DataTable({
         responsive: true,
         "ajax": {
@@ -69,7 +85,6 @@ function mostratModal(modelo = MODELO_BASE) {
     $("#txtId").val(modelo.idUsuario)
     $("#txtNombre").val(modelo.nombre)
     $("#txtCorreo").val(modelo.correo)
-    $("#txtTelefono").val()
     $("#txtTelefono").val(modelo.telefono)
     $("#cboRol").val(modelo.idRol == 0 ? $("#cboRol option:first").val() : modelo.idRol)
     $("#cboEstado").val(modelo.esActivo)
@@ -81,4 +96,59 @@ function mostratModal(modelo = MODELO_BASE) {
 
 $("#btnNuevo").on("click", function () {
     mostratModal()
+})
+
+$("#btnGuardar").on("click", function () {
+
+    //debugger;
+
+    const inputs = $("input.input-validar").serializeArray();
+    const inputs_sin_valor = inputs.filter((item) => item.value.trim() == "")
+
+    if (inputs_sin_valor.length > 0) {
+        const mensaje = `Debe completar el campo: "${inputs_sin_valor[0].name}"`
+        toastr.warning("", mensaje)
+        $(`input[name="${inputs_sin_valor[0].name}"]`).focus()
+        return;
+    }
+
+    const modelo = structuredClone(MODELO_BASE);
+    modelo["idUsuario"] = parseInt($("#txtId").val())
+    modelo["nombre"] = $("#txtNombre").val()
+    modelo["correo"] = $("#txtCorreo").val()
+    modelo["telefono"] = $("#txtTelefono").val()
+    modelo["idRol"] = $("#cboRol").val()
+    modelo["esActivo"] = $("#cboEstado").val()
+
+    const inputFoto = document.getElementById("txtFoto")
+
+    const formData = new FormData();
+
+    formData.append("foto", inputFoto.files[0])
+    formData.append("modelo", JSON.stringify(modelo))
+
+    $("#modalData").find("div.modal-content").LoadingOverlay("show");
+
+    if (modelo.idUsuario == 0) {
+        fetch("/Usuario/Crear", {
+            method: "POST",
+            body: formData
+        })
+            .then(response => {
+                $("#modalData").find("div.modal-content").LoadingOverlay("hide");
+                return response.ok ? response.json() : Promise.reject(response);
+            })
+            .then(responseJson => {
+                if (responseJson.estado) {
+                    tablaData.row.add(responseJson.objeto).draw(false)
+                    $("#modalData").modal("hide")
+                    swal("Listo!", "El usuario fue creado", "success")
+                } else {
+                    swal("Lo sentimos", responseJson.mensaje, "error")
+                }
+            })
+    }
+})
+$("#tbdata tbody").on("click", ".btn-editar", function () {
+
 })
