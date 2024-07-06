@@ -147,8 +147,39 @@ $("#btnGuardar").on("click", function () {
                     swal("Lo sentimos", responseJson.mensaje, "error")
                 }
             })
+    } else {
+        fetch("/Usuario/Editar", {
+            method: "POST",
+            body: formData
+        })
+            .then(response => {
+                $("#modalData").find("div.modal-content").LoadingOverlay("hide");
+                return response.ok ? response.json() : Promise.reject(response);
+            })
+            .then(responseJson => {
+                if (responseJson.estado) {
+                    tablaData.row(filaSeleccinada).data(responseJson.objeto).draw(false)
+                    filaSeleccinada = null
+                    $("#modalData").modal("hide")
+                    swal("Listo!", "El usuario fue modificado", "success")
+                } else {
+                    swal("Lo sentimos", responseJson.mensaje, "error")
+                }
+            })
     }
 })
+
+
+let fitlaSeleccionada;
 $("#tbdata tbody").on("click", ".btn-editar", function () {
+
+    if ($(this).closest("tr").hasClass("child")) {
+        filaSeleccionada = $(this).closest("tr").prev()
+    } else {
+        filaSeleccionada = $(this).closest("tr")
+    }
+
+    const data = tablaData.row(filaSeleccionada).data()
+    mostratModal(data);
 
 })

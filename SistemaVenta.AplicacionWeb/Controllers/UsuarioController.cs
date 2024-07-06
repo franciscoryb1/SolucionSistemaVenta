@@ -104,8 +104,6 @@ namespace SistemaVenta.AplicacionWeb.Controllers
                     fotoStream = foto.OpenReadStream();
                 }
 
-        
-
                 Usuario usuario_editado = await _usuarioServicio.Editar(_mapper.Map<Usuario>(vmUsuario), fotoStream, nombreFoto);
 
                 vmUsuario = _mapper.Map<VMUsuario>(usuario_editado);
