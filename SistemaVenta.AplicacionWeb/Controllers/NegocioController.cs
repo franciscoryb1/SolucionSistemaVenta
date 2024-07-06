@@ -6,6 +6,7 @@ using SistemaVenta.AplicacionWeb.Models.ViewModels;
 using SistemaVenta.AplicacionWeb.Utilidades.Response;
 using SistemaVenta.BLL.Interfaces;
 using SistemaVenta.Entity;
+using Microsoft.Identity.Client;
 
 namespace SistemaVenta.AplicacionWeb.Controllers
 {
@@ -20,6 +21,13 @@ namespace SistemaVenta.AplicacionWeb.Controllers
             _mapper = mapper;
             _negocioService = negocioService;
         }
+
+
+        public IActionResult Index()
+        {
+            return View();
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> Obtener()
