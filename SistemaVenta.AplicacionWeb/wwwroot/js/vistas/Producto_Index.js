@@ -1,26 +1,29 @@
 ﻿
 const MODELO_BASE = {
-    idUsuario: 0,
+    idProducto: 0,
+    codigoBarra: "",
+    marca: "",
     nombre: "",
-    correo: "",
-    telefono: "",
-    idRol: 0,
+    idCategoria: 0,
+    stock: 0,
+    urlImagen: "",
+    precio: 0,
     esActivo: 1,
-    urlFoto: ""
 };
 
 let tablaData;
 $(document).ready((function () {
 
-    fetch("/Usuario/ListaRoles")
+    fetch("/Categoria/Lista")
         .then(response => {
             return response.ok ? response.json() : Promise.reject(response);
         })
         .then(responseJson => {
-            if (responseJson.length > 0) {
-                responseJson.forEach((item) => {
-                    $("#cboRol").append(
-                        $("<option>").val(item.idRol).text(item.descripcion)
+            console.log(responseJson)
+            if (responseJson.data.length > 0) {
+                responseJson.data.forEach((item) => {
+                    $("#cboCategoria").append(
+                        $("<option>").val(item.idCategoria).text(item.descripcion)
                     )
                 })
             }
@@ -30,22 +33,23 @@ $(document).ready((function () {
     tablaData = $('#tbdata').DataTable({
         responsive: true,
         "ajax": {
-            "url": '/Usuario/Lista',
+            "url": '/Producto/Lista',
             "type": "GET",
             "datatype": "json"
         },
         "columns": [
-            { "data": "idUsuario", "visible": false, "searchable": false },
-            //{
-            //    "data": "urlFoto", render: function (data) {
-            //        return `<img style="height:60px" src=${data} class="rounded mx-auto d-block"/>`
-            //    }
-            //},
-            { "data": "urlFoto" },
-            { "data": "nombre" },
-            { "data": "correo" },
-            { "data": "telefono" },
-            { "data": "nombreRol" },
+            { "data": "idProducto", "visible": false, "searchable": false },
+            {
+                "data": "urlImagen", render: function (data) {
+                    return `<img style="height:60px" src=${data} class="rounded mx-auto d-block"/>`
+                }
+            },
+            { "data": "codigoBarra" },
+            { "data": "marca" },
+            { "data": "descripcion" },
+            { "data": "nombreCategoria" },
+            { "data": "stock" },
+            { "data": "precio" },
             {
                 "data": "esActivo", render: function (data) {
                     if (data == 1)
@@ -69,7 +73,7 @@ $(document).ready((function () {
                 text: 'Exportar Excel',
                 extend: 'excelHtml5',
                 title: '',
-                filename: 'Reporte Usuarios',
+                filename: 'Reporte Productos',
                 exportOptions: {
                     columns: [2, 3, 4, 5, 6]
                 }
@@ -82,14 +86,15 @@ $(document).ready((function () {
 }));
 
 function mostratModal(modelo = MODELO_BASE) {
-    $("#txtId").val(modelo.idUsuario)
-    $("#txtNombre").val(modelo.nombre)
-    $("#txtCorreo").val(modelo.correo)
-    $("#txtTelefono").val(modelo.telefono)
-    $("#cboRol").val(modelo.idRol == 0 ? $("#cboRol option:first").val() : modelo.idRol)
-    $("#cboEstado").val(modelo.esActivo)
-    $("#txtFoto").val("")
-    $("#imgUsuario").attr("src", modelo.urlFoto)
+    $("#txtId").val(modelo.idProducto)
+    $("#txtCodigoBarra").val(modelo.codigoBarra)
+    $("#txtMarca").val(modelo.marca)
+    $("#txtDescripcion").val(modelo.descripcion)
+    $("#cboCategoria").val(modelo.idCategoria == 0 ? $("#cboCategoria option:first").val() : modelo.idCategoria)
+    $("#txtStock").val(modelo.stock)
+    $("#txtPrecio").val(modelo.precio)
+    $("#txtImagen").val()
+    $("#imgProducto").attr("src", modelo.urlImagen)
 
     $("#modalData").modal("show")
 };
@@ -99,8 +104,6 @@ $("#btnNuevo").on("click", function () {
 });
 
 $("#btnGuardar").on("click", function () {
-
-    //debugger;
 
     const inputs = $("input.input-validar").serializeArray();
     const inputs_sin_valor = inputs.filter((item) => item.value.trim() == "")
@@ -113,24 +116,26 @@ $("#btnGuardar").on("click", function () {
     }
 
     const modelo = structuredClone(MODELO_BASE);
-    modelo["idUsuario"] = parseInt($("#txtId").val())
-    modelo["nombre"] = $("#txtNombre").val()
-    modelo["correo"] = $("#txtCorreo").val()
-    modelo["telefono"] = $("#txtTelefono").val()
-    modelo["idRol"] = $("#cboRol").val()
+    modelo["idProducto"] = parseInt($("#txtId").val())
+    modelo["codigoBarra"] = $("#txtCodigoBarra").val()
+    modelo["marca"] = $("#txtMarca").val()
+    modelo["descripcion"] = $("#txtDescripcion").val()
+    modelo["idCategoria"] = $("#cboCategoria").val()
+    modelo["stock"] = $("#txtStock").val()
+    modelo["precio"] = $("#txtPrecio").val()
     modelo["esActivo"] = $("#cboEstado").val()
 
-    const inputFoto = document.getElementById("txtFoto")
+    const inputFoto = document.getElementById("txtImagen")
 
     const formData = new FormData();
 
-    formData.append("foto", inputFoto.files[0])
+    formData.append("imagen", inputFoto.files[0])
     formData.append("modelo", JSON.stringify(modelo))
 
     $("#modalData").find("div.modal-content").LoadingOverlay("show");
 
-    if (modelo.idUsuario == 0) {
-        fetch("/Usuario/Crear", {
+    if (modelo.idProducto == 0) {
+        fetch("/Producto/Crear", {
             method: "POST",
             body: formData
         })
@@ -142,14 +147,14 @@ $("#btnGuardar").on("click", function () {
                 if (responseJson.estado) {
                     tablaData.row.add(responseJson.objeto).draw(false)
                     $("#modalData").modal("hide")
-                    swal("Listo!", "El usuario fue creado", "success")
+                    swal("Listo!", "El producto fue creado", "success")
                 } else {
                     swal("Lo sentimos", responseJson.mensaje, "error")
                 }
             })
     } else {
-        fetch("/Usuario/Editar", {
-            method: "POST",
+        fetch("/Producto/Editar", {
+            method: "PUT",
             body: formData
         })
             .then(response => {
@@ -161,14 +166,13 @@ $("#btnGuardar").on("click", function () {
                     tablaData.row(fitlaSeleccionada).data(responseJson.objeto).draw(false)
                     fitlaSeleccionada = null
                     $("#modalData").modal("hide")
-                    swal("Listo!", "El usuario fue modificado", "success")
+                    swal("Listo!", "El producto fue modificado", "success")
                 } else {
                     swal("Lo sentimos", responseJson.mensaje, "error")
                 }
             })
     }
 })
-
 
 let fitlaSeleccionada;
 $("#tbdata tbody").on("click", ".btn-editar", function () {
@@ -194,7 +198,7 @@ $("#tbdata tbody").on("click", ".btn-eliminar", function () {
 
     swal({
         title: "Estas seguro?",
-        text: `Eliminar el usuario "${data.nombre}"`,
+        text: `Eliminar el producto "${data.descripcion}"`,
         type: "warning",
         showCancelButton: true,
         confirmButtonClass: "btn-danger",
@@ -204,9 +208,9 @@ $("#tbdata tbody").on("click", ".btn-eliminar", function () {
         closeOnCancel: true
     },
         function (respuesta) {
-            if (respuesta) {
-            $(".showSweetAlert").LoadingOverlay("show");
-                fetch(`/Usuario/Eliminar?IdUsuario=${data.idUsuario}`, {
+            if (respuesta)
+                $(".showSweetAlert").LoadingOverlay("show");
+                fetch(`/Producto/Eliminar?idProducto=${data.idProducto}`, {
                     method: "DELETE"
                 }
                     .then(response => {
@@ -216,13 +220,13 @@ $("#tbdata tbody").on("click", ".btn-eliminar", function () {
                     .then(responseJson => {
                         if (responseJson.estado) {
                             tablaData.row(fila).remove().draw()
-                            swal("Listo", "El usuario fue eliminado", "success")
+                            swal("Listo", "El producto fue eliminado", "success")
                         } else {
                             swal("Lo sentimos", responseJson.mensaje, "error")
                         }
                     })
-                )
+                
             }
         }
     )
-});             
+});   
