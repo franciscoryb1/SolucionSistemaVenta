@@ -1,5 +1,4 @@
-﻿
-const MODELO_BASE = {
+﻿const MODELO_BASE = {
     idProducto: 0,
     codigoBarra: "",
     marca: "",
@@ -12,23 +11,21 @@ const MODELO_BASE = {
 };
 
 let tablaData;
-$(document).ready((function () {
+$(document).ready(function () {
 
     fetch("/Categoria/Lista")
         .then(response => {
             return response.ok ? response.json() : Promise.reject(response);
         })
         .then(responseJson => {
-            console.log(responseJson)
             if (responseJson.data.length > 0) {
                 responseJson.data.forEach((item) => {
                     $("#cboCategoria").append(
                         $("<option>").val(item.idCategoria).text(item.descripcion)
-                    )
-                })
+                    );
+                });
             }
-        })
-
+        });
 
     tablaData = $('#tbdata').DataTable({
         responsive: true,
@@ -41,21 +38,20 @@ $(document).ready((function () {
             { "data": "idProducto", "visible": false, "searchable": false },
             {
                 "data": "urlImagen", render: function (data) {
-                    return `<img style="height:60px" src=${data} class="rounded mx-auto d-block"/>`
+                    return `<img style="height:60px" src="${data}" class="rounded mx-auto d-block"/>`;
                 }
             },
             { "data": "codigoBarra" },
             { "data": "marca" },
-            { "data": "descripcion" },
             { "data": "nombreCategoria" },
             { "data": "stock" },
             { "data": "precio" },
             {
                 "data": "esActivo", render: function (data) {
                     if (data == 1)
-                        return '<span class="badge badge-info">Activo<span/>';
+                        return '<span class="badge badge-info">Activo</span>';
                     else
-                        return '<span class="badge badge-danger">No Activo<span/>';
+                        return '<span class="badge badge-danger">No Activo</span>';
                 }
             },
             {
@@ -83,54 +79,54 @@ $(document).ready((function () {
             url: "https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json"
         },
     });
-}));
+});
 
 function mostratModal(modelo = MODELO_BASE) {
-    $("#txtId").val(modelo.idProducto)
-    $("#txtCodigoBarra").val(modelo.codigoBarra)
-    $("#txtMarca").val(modelo.marca)
-    $("#txtDescripcion").val(modelo.descripcion)
-    $("#cboCategoria").val(modelo.idCategoria == 0 ? $("#cboCategoria option:first").val() : modelo.idCategoria)
-    $("#txtStock").val(modelo.stock)
-    $("#txtPrecio").val(modelo.precio)
-    $("#txtImagen").val()
-    $("#imgProducto").attr("src", modelo.urlImagen)
+    $("#txtId").val(modelo.idProducto);
+    $("#txtCodigoBarra").val(modelo.codigoBarra);
+    $("#txtMarca").val(modelo.marca);
+    $("#txtNombre").val(modelo.nombre);
+    $("#cboCategoria").val(modelo.idCategoria == 0 ? $("#cboCategoria option:first").val() : modelo.idCategoria);
+    $("#txtStock").val(modelo.stock);
+    $("#txtPrecio").val(modelo.precio);
+    $("#txtImagen").val("");
+    $("#imgProducto").attr("src", modelo.urlImagen);
 
-    $("#modalData").modal("show")
+    $("#modalData").modal("show");
 };
 
 $("#btnNuevo").on("click", function () {
-    mostratModal()
+    mostratModal();
 });
 
 $("#btnGuardar").on("click", function () {
 
     const inputs = $("input.input-validar").serializeArray();
-    const inputs_sin_valor = inputs.filter((item) => item.value.trim() == "")
+    const inputs_sin_valor = inputs.filter((item) => item.value.trim() == "");
 
     if (inputs_sin_valor.length > 0) {
-        const mensaje = `Debe completar el campo: "${inputs_sin_valor[0].name}"`
-        toastr.warning("", mensaje)
-        $(`input[name="${inputs_sin_valor[0].name}"]`).focus()
+        const mensaje = `Debe completar el campo: "${inputs_sin_valor[0].name}"`;
+        toastr.warning("", mensaje);
+        $(`input[name="${inputs_sin_valor[0].name}"]`).focus();
         return;
     }
 
     const modelo = structuredClone(MODELO_BASE);
-    modelo["idProducto"] = parseInt($("#txtId").val())
-    modelo["codigoBarra"] = $("#txtCodigoBarra").val()
-    modelo["marca"] = $("#txtMarca").val()
-    modelo["descripcion"] = $("#txtDescripcion").val()
-    modelo["idCategoria"] = $("#cboCategoria").val()
-    modelo["stock"] = $("#txtStock").val()
-    modelo["precio"] = $("#txtPrecio").val()
-    modelo["esActivo"] = $("#cboEstado").val()
+    modelo["idProducto"] = parseInt($("#txtId").val());
+    modelo["codigoBarra"] = $("#txtCodigoBarra").val();
+    modelo["marca"] = $("#txtMarca").val();
+    modelo["nombre"] = $("#txtNombre").val();
+    modelo["idCategoria"] = $("#cboCategoria").val();
+    modelo["stock"] = $("#txtStock").val();
+    modelo["precio"] = $("#txtPrecio").val();
+    modelo["esActivo"] = $("#cboEstado").val();
 
-    const inputFoto = document.getElementById("txtImagen")
+    const inputFoto = document.getElementById("txtImagen");
 
     const formData = new FormData();
 
-    formData.append("imagen", inputFoto.files[0])
-    formData.append("modelo", JSON.stringify(modelo))
+    formData.append("imagen", inputFoto.files[0]);
+    formData.append("modelo", JSON.stringify(modelo));
 
     $("#modalData").find("div.modal-content").LoadingOverlay("show");
 
@@ -145,13 +141,13 @@ $("#btnGuardar").on("click", function () {
             })
             .then(responseJson => {
                 if (responseJson.estado) {
-                    tablaData.row.add(responseJson.objeto).draw(false)
-                    $("#modalData").modal("hide")
-                    swal("Listo!", "El producto fue creado", "success")
+                    tablaData.row.add(responseJson.objeto).draw(false);
+                    $("#modalData").modal("hide");
+                    swal("Listo!", "El producto fue creado", "success");
                 } else {
-                    swal("Lo sentimos", responseJson.mensaje, "error")
+                    swal("Lo sentimos", responseJson.mensaje, "error");
                 }
-            })
+            });
     } else {
         fetch("/Producto/Editar", {
             method: "PUT",
@@ -163,27 +159,27 @@ $("#btnGuardar").on("click", function () {
             })
             .then(responseJson => {
                 if (responseJson.estado) {
-                    tablaData.row(fitlaSeleccionada).data(responseJson.objeto).draw(false)
-                    fitlaSeleccionada = null
-                    $("#modalData").modal("hide")
-                    swal("Listo!", "El producto fue modificado", "success")
+                    tablaData.row(filaSeleccionada).data(responseJson.objeto).draw(false);
+                    filaSeleccionada = null;
+                    $("#modalData").modal("hide");
+                    swal("Listo!", "El producto fue modificado", "success");
                 } else {
-                    swal("Lo sentimos", responseJson.mensaje, "error")
+                    swal("Lo sentimos", responseJson.mensaje, "error");
                 }
-            })
+            });
     }
-})
+});
 
-let fitlaSeleccionada;
+let filaSeleccionada;
 $("#tbdata tbody").on("click", ".btn-editar", function () {
 
     if ($(this).closest("tr").hasClass("child")) {
-        filaSeleccionada = $(this).closest("tr").prev()
+        filaSeleccionada = $(this).closest("tr").prev();
     } else {
-        filaSeleccionada = $(this).closest("tr")
+        filaSeleccionada = $(this).closest("tr");
     }
 
-    const data = tablaData.row(filaSeleccionada).data()
+    const data = tablaData.row(filaSeleccionada).data();
     mostratModal(data);
 });
 
@@ -197,36 +193,38 @@ $("#tbdata tbody").on("click", ".btn-eliminar", function () {
     const data = tablaData.row(fila).data();
 
     swal({
-        title: "Estas seguro?",
-        text: `Eliminar el producto "${data.descripcion}"`,
+        title: "¿Estás seguro?",
+        text: `Eliminar el producto "${data.nombre}"`,
         type: "warning",
         showCancelButton: true,
         confirmButtonClass: "btn-danger",
-        confirmButtonText: "Si, eliminar",
+        confirmButtonText: "Sí, eliminar",
         cancelButtonText: "No, cancelar",
         closeOnConfirm: false,
         closeOnCancel: true
     },
         function (respuesta) {
-            if (respuesta)
+            if (respuesta) {
                 $(".showSweetAlert").LoadingOverlay("show");
                 fetch(`/Producto/Eliminar?idProducto=${data.idProducto}`, {
                     method: "DELETE"
-                }
+                })
                     .then(response => {
                         $(".showSweetAlert").LoadingOverlay("hide");
                         return response.ok ? response.json() : Promise.reject(response);
                     })
                     .then(responseJson => {
                         if (responseJson.estado) {
-                            tablaData.row(fila).remove().draw()
-                            swal("Listo", "El producto fue eliminado", "success")
+                            tablaData.row(fila).remove().draw();
+                            swal("Listo", "El producto fue eliminado", "success");
                         } else {
-                            swal("Lo sentimos", responseJson.mensaje, "error")
+                            swal("Lo sentimos", responseJson.mensaje, "error");
                         }
                     })
-                
+                    .catch(error => {
+                        $(".showSweetAlert").LoadingOverlay("hide");
+                        swal("Error", "Ocurrió un error al eliminar el producto", "error");
+                    });
             }
-        }
-    )
-});   
+        });
+});
