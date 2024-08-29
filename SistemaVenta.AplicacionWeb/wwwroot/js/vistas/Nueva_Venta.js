@@ -10,7 +10,7 @@ $(document).ready(function () {
             if (responseJson.length > 0) {
                 responseJson.forEach((item) => {
                     $("#cboTipoDocumentoVenta").append(
-                        $("<option>").val(item.IdTipoDocumentoVenta).text(item.descripcion)
+                        $("<option>").val(item.idTipoDocumentoVenta).text(item.descripcion)
                     );
                 });
             }
@@ -128,7 +128,7 @@ $("#cboBuscarProducto").on("select2:select", function (e) {
                 categoriaProducto: data.categoria,
                 cantidad: parseInt(valor),
                 precio: data.precio.toString(),
-                total: (parseFloat(valor) * data.precio).toString()
+                total: (parseFloat(valor) * data.precio).toFixed(2)
             };
             ProductosParaVenta.push(producto);
 
@@ -192,16 +192,18 @@ $("#btnTerminarVenta").on("click", function () {
     }
 
     const vmDetalleVenta = ProductosParaVenta;
+    console.log("subtotal: ", $("#txtSubTotal").val());
 
     const modelo = {
         IdTipoDocumentoVenta: parseInt($("#cboTipoDocumentoVenta").val(), 10) || 0,
         DocumentoCliente: $("#txtDocumentoCliente").val() || "",
         NombreCliente: $("#txtNombreCliente").val() || "",
-        SubTotal: parseFloat($("#txtSubtotal").val()) || 0,
-        ImpuestoTotal: parseFloat($("#txtIGV").val()) || 0,
-        Total: parseFloat($("#txtTotal").val()) || 0,
+        SubTotal: $("#txtSubTotal").val(),
+        ImpuestoTotal: $("#txtIGV").val(),
+        Total: $("#txtTotal").val(),
         DetalleVenta: vmDetalleVenta
     };
+
 
     $("#btnTerminarVenta").LoadingOverlay("show");
 
