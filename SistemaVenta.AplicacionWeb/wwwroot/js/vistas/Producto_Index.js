@@ -2,7 +2,7 @@
     idProducto: 0,
     codigoBarra: "",
     marca: "",
-    nombre: "",
+    descripcion: "",
     idCategoria: 0,
     stock: 0,
     urlImagen: "",
@@ -85,7 +85,7 @@ function mostratModal(modelo = MODELO_BASE) {
     $("#txtId").val(modelo.idProducto);
     $("#txtCodigoBarra").val(modelo.codigoBarra);
     $("#txtMarca").val(modelo.marca);
-    $("#txtNombre").val(modelo.nombre);
+    $("#txtDescripcion").val(modelo.descripcion);
     $("#cboCategoria").val(modelo.idCategoria == 0 ? $("#cboCategoria option:first").val() : modelo.idCategoria);
     $("#txtStock").val(modelo.stock);
     $("#txtPrecio").val(modelo.precio);
@@ -110,12 +110,12 @@ $("#btnGuardar").on("click", function () {
         $(`input[name="${inputs_sin_valor[0].name}"]`).focus();
         return;
     }
-
+    console.log("desc: ", $("#txtDescripcion").val())
     const modelo = structuredClone(MODELO_BASE);
     modelo["idProducto"] = parseInt($("#txtId").val());
     modelo["codigoBarra"] = $("#txtCodigoBarra").val();
     modelo["marca"] = $("#txtMarca").val();
-    modelo["nombre"] = $("#txtNombre").val();
+    modelo["descripcion"] = $("#txtDescripcion").val();
     modelo["idCategoria"] = $("#cboCategoria").val();
     modelo["stock"] = $("#txtStock").val();
     modelo["precio"] = $("#txtPrecio").val();
