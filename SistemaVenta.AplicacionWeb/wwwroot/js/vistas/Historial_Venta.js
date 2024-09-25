@@ -111,11 +111,12 @@ $("#tbventa tbody").on("click", ".btn-info", function () {
                 $("<td>").text(item.descripcionProducto),
                 $("<td>").text(item.cantidad),
                 $("<td>").text(item.precio),
-                $("<td>").text(item.total),                
+                $("<td>").text(item.total),
             )
         );
     })
 
+    $("#linkImprimir").attr("href", `/Venta/MostrarPDFVenta?numeroVenta=${d.numeroVenta}`)
     $("#modalData").modal("show")
 
 

@@ -6,6 +6,9 @@ using SistemaVenta.AplicacionWeb.Utilidades.Response;
 using SistemaVenta.BLL.Interfaces;
 using SistemaVenta.Entity;
 
+using DinkToPdf;
+using DinkToPdf.Contracts;
+
 namespace SistemaVenta.AplicacionWeb.Controllers
 {
     public class VentaController : Controller
@@ -13,12 +16,14 @@ namespace SistemaVenta.AplicacionWeb.Controllers
         private readonly ITipoDocumentoVentaService _tipoDocumentoServicio;
         private readonly IVentaService _ventaServicio;
         private readonly IMapper _mapper;
+        private readonly IConverter  _converter;
 
-        public VentaController(ITipoDocumentoVentaService tipoDocumentoServicio, IVentaService ventaServicio, IMapper mapper)
+        public VentaController(ITipoDocumentoVentaService tipoDocumentoServicio, IVentaService ventaServicio, IMapper mapper, IConverter converter)
         {
             _tipoDocumentoServicio = tipoDocumentoServicio;
             _ventaServicio = ventaServicio;
             _mapper = mapper;
+            _converter = converter;
         }
 
 
@@ -75,6 +80,32 @@ namespace SistemaVenta.AplicacionWeb.Controllers
         {
             List<VMVenta> vmHistorialVenta = _mapper.Map<List<VMVenta>>(await _ventaServicio.Historial(numeroVenta, fechaInicio, fechaFin));
             return StatusCode(StatusCodes.Status200OK, vmHistorialVenta);
+        }
+
+        public IActionResult MostrarPDFVenta(string numeroVenta)
+        {
+            string urlPlantillaVista = $"{this.Request.Scheme}://{this.Request.Host}/Plantilla/PDFVenta?numeroVenta={numeroVenta}";
+
+            var pdf = new HtmlToPdfDocument()
+            {
+                GlobalSettings = new GlobalSettings()
+                {
+                    PaperSize = PaperKind.A4,
+                    Orientation = Orientation.Portrait,
+                },
+                Objects =
+                {
+                    new ObjectSettings()
+                    {
+                        Page = urlPlantillaVista
+                    }
+                }
+            };
+
+            var archivoPDF = _converter.Convert(pdf);
+
+            return File(archivoPDF, "application/pdf");
+
         }
 
     }
