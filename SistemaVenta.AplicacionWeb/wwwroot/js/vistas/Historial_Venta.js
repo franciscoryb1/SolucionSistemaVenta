@@ -86,4 +86,38 @@ $("#btnBuscar").on("click", function () {
             console.error('Error fetching data:', error);
             toastr.error("", "Hubo un error al obtener los datos");
         });
-});
+})
+
+
+$("#tbventa tbody").on("click", ".btn-info", function () {
+
+    let d = $(this).data("venta")
+
+    $("#txtFechaRegistro").val(d.fechaRegistro)
+    $("#txtNumVenta").val(d.numeroVenta)
+    $("#txtUsuarioRegistro").val(d.usuario)
+    $("#txtTipoDocumento").val(d.tipoDocumentoVenta)
+    $("#txtDocumentoCliente").val(d.documentoCliente)
+    $("#txtNombreCliente").val(d.nombreCliente)
+    $("#txtSubTotal").val(d.subTotal)
+    $("#txtIGV").val(d.impuestoTotal)
+    $("#txtTotal").val(d.total)
+
+    $("#tbProductos tbody").html("");
+
+    d.detalleVenta.forEach((item) => {
+        $("#tbProductos tbody").append(
+            $("<tr>").append(
+                $("<td>").text(item.descripcionProducto),
+                $("<td>").text(item.cantidad),
+                $("<td>").text(item.precio),
+                $("<td>").text(item.total),                
+            )
+        );
+    })
+
+    $("#modalData").modal("show")
+
+
+})
+
