@@ -29,7 +29,7 @@ namespace SistemaVenta.AplicacionWeb.Controllers
             {
                 VMDashBoard vmDashBoard = new VMDashBoard();
 
-                vmDashBoard.Totalventas = await _dashboardServicio.TotalVentasUltimaSemana();
+                vmDashBoard.TotalVentas = await _dashboardServicio.TotalVentasUltimaSemana();
                 vmDashBoard.TotalIngresos = await _dashboardServicio.TotalIngresosUltimaSemana();
                 vmDashBoard.TotalProductos = await _dashboardServicio.TotalProductos();
                 vmDashBoard.TotalCategorias = await _dashboardServicio.TotalCategorias();
