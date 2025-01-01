@@ -1,80 +1,127 @@
 ﻿
+
 $(document).ready(function () {
 
 
     $("div.container-fluid").LoadingOverlay("show");
 
-    fetch("/Negocio/Obtener")
+    fetch("/DashBoard/ObtenerResumen")
         .then(response => {
-            $(".card-body").LoadingOverlay("hide");
+            $("div.container-fluid").LoadingOverlay("hide");
             return response.ok ? response.json() : Promise.reject(response);
         })
         .then(responseJson => {
-            console.log(responseJson)
+
             if (responseJson.estado) {
-                const d = responseJson.objeto
 
-                $("#txtNumeroDocumento").val(d.numeroDocumento)
-                $("#txtRazonSocial").val(d.nombre)
-                $("#txtCorreo").val(d.correo)
-                $("#txtDireccion").val(d.direccion)
-                $("#txTelefono").val(d.telefono)
-                $("#txtImpuesto").val(d.porcentajeImpuesto)
-                $("#txtSimboloMoneda").val(d.simboloMoneda)
-                $("#imgLogo").attr("src", d.urlLogo)
 
-            } else {
-                swal("Lo sentimos", responseJson.mensaje, "error")
-            }
+                //mostrar datos para las tarjetas
+                let d = responseJson.objeto
 
-        })
+                $("#totalVenta").text(d.totalVentas)
+                $("#totalIngresos").text(d.totalIngresos)
+                $("#totalProductos").text(d.totalProductos)
+                $("#totalCategorias").text(d.totalCategorias)
 
-    //Guardar Cambios
-    $("#btnGuardarCambios").on('click', function () {
-        const inputs = $("input.input-validar").serializeArray();
-        const inputs_sin_valor = inputs.filter((item) => item.value.trim() == "")
+                //obtener textos y valores para nuestro grafico de barras
+                let barchart_labels;
+                let barchart_data;
 
-        if (inputs_sin_valor.length > 0) {
-            const mensaje = `Debe completar el campo: "${inputs_sin_valor[0].name}"`
-            toastr.warning("", mensaje)
-            $(`input[name="${inputs_sin_valor[0].name}"]`).focus()
-            return;
-        }
-
-        const modelo = {
-            numeroDocumento: $("#txtNumeroDocumento").val(),
-            nombre: $("#txtRazonSocial").val(),
-            correo: $("#txtCorreo").val(),
-            direccion: $("#txtDireccion").val(),
-            telefono: $("#txTelefono").val(),
-            porcentajeImpuesto: $("#txtImpuesto").val(),
-            simboloMoneda: $("#txtSimboloMoneda").val()
-        }
-
-        const inputLogo = document.getElementById("txtLogo")
-        const formData = new FormData()
-        formData.append("logo", inputLogo.files[0])
-        formData.append("modelo", JSON.stringify(modelo))
-
-        $(".card-body").LoadingOverlay("show");
-
-        fetch("Negocio/GuardarCambios", {
-            method: "POST",
-            body: formData
-        })
-            .then(response => {
-                $(".card-body").LoadingOverlay("hide");
-                return response.ok ? response.json() : Promise.reject(response);
-            })
-            .then(responseJson => {
-                console.log(responseJson)
-                if (responseJson.estado) {
-                    const d = responseJson.objeto
-                    $("#imgLogo").attr("src", d.urlLogo)
+                if (d.ventasUltimaSemana.length > 0) {
+                    barchart_labels = d.ventasUltimaSemana.map((item) => { return item.fecha })
+                    barchart_data = d.ventasUltimaSemana.map((item) => { return item.total })
                 } else {
-                    swal("Lo sentimos", responseJson.mensaje, "error")
+                    barchart_labels = ["sin resultados"]
+                    barchart_data = [0]
                 }
 
-            })
-    })
+
+                //obtener textos y valores para nuestro grafico de pie
+                let piechar_labels;
+                let piechart_data;
+                if (d.productosTopUltimaSemana.length > 0) {
+                    piechar_labels = d.productosTopUltimaSemana.map((item) => { return item.producto })
+                    piechart_data = d.productosTopUltimaSemana.map((item) => { return item.cantidad })
+                } else {
+                    piechar_labels = ["sin resultados"]
+                    piechart_data = [0]
+                }
+
+
+                // Bar Chart Example
+                let controlVenta = document.getElementById("chartVentas");
+                let myBarChart = new Chart(controlVenta, {
+                    type: 'bar',
+                    data: {
+                        labels: barchart_labels,
+                        datasets: [{
+                            label: "Cantidad",
+                            backgroundColor: "#4e73df",
+                            hoverBackgroundColor: "#2e59d9",
+                            borderColor: "#4e73df",
+                            data: barchart_data,
+                        }],
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        legend: {
+                            display: false
+                        },
+                        scales: {
+                            xAxes: [{
+                                gridLines: {
+                                    display: false,
+                                    drawBorder: false
+                                },
+                                maxBarThickness: 50,
+                            }],
+                            yAxes: [{
+                                ticks: {
+                                    min: 0,
+                                    maxTicksLimit: 5
+                                }
+                            }],
+                        },
+                    }
+                });
+
+                // Pie Chart Example
+                let controlProducto = document.getElementById("chartProductos");
+                let myPieChart = new Chart(controlProducto, {
+                    type: 'doughnut',
+                    data: {
+                        labels: piechar_labels,
+                        datasets: [{
+                            data: piechart_data,
+                            backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', "#FF785B"],
+                            hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', "#FF5733"],
+                            hoverBorderColor: "rgba(234, 236, 244, 1)",
+                        }],
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        tooltips: {
+                            backgroundColor: "rgb(255,255,255)",
+                            bodyFontColor: "#858796",
+                            borderColor: '#dddfeb',
+                            borderWidth: 1,
+                            xPadding: 15,
+                            yPadding: 15,
+                            displayColors: false,
+                            caretPadding: 10,
+                        },
+                        legend: {
+                            display: true
+                        },
+                        cutoutPercentage: 80,
+                    },
+                });
+
+
+
+
+
+
+            }
+        })
 })

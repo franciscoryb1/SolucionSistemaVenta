@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 using SistemaVenta.AplicacionWeb.Models.ViewModels;
 using SistemaVenta.AplicacionWeb.Utilidades.Response;
@@ -6,16 +7,16 @@ using SistemaVenta.BLL.Interfaces;
 
 namespace SistemaVenta.AplicacionWeb.Controllers
 {
-    public class DashboardController : Controller
+    [Authorize]
+    public class DashBoardController : Controller
     {
 
         private readonly IDashBoardService _dashboardServicio;
 
-        public DashboardController(IDashBoardService dashboardServicio)
+        public DashBoardController(IDashBoardService dashboardServicio)
         {
             _dashboardServicio = dashboardServicio;
         }
-
         public IActionResult Index()
         {
             return View();
@@ -34,24 +35,33 @@ namespace SistemaVenta.AplicacionWeb.Controllers
                 vmDashBoard.TotalProductos = await _dashboardServicio.TotalProductos();
                 vmDashBoard.TotalCategorias = await _dashboardServicio.TotalCategorias();
 
-                List<VMVentasSemana> listaVentaSemana = new List<VMVentasSemana>();
+                List<VMVentasSemana> listaVentasSemana = new List<VMVentasSemana>();
                 List<VMProductosSemana> listaProductosSemana = new List<VMProductosSemana>();
 
-                foreach(KeyValuePair<string, int> item in await _dashboardServicio.VentasUltimaSemana())
+                foreach (KeyValuePair<string, int> item in await _dashboardServicio.VentasUltimaSemana())
                 {
-                    listaVentaSemana.Add(new VMVentasSemana {Fecha = item.Key, Total=item.Value});
+                    listaVentasSemana.Add(new VMVentasSemana()
+                    {
+                        Fecha = item.Key,
+                        Total = item.Value
+                    });
                 }
 
                 foreach (KeyValuePair<string, int> item in await _dashboardServicio.ProductosTopUltimaSemana())
                 {
-                    listaProductosSemana.Add(new VMProductosSemana { Producto = item.Key, Cantidad = item.Value });
+                    listaProductosSemana.Add(new VMProductosSemana()
+                    {
+                        Producto = item.Key,
+                        Cantidad = item.Value
+                    });
                 }
 
-                vmDashBoard.VentasUltimaSemana = listaVentaSemana;
+                vmDashBoard.VentasUltimaSemana = listaVentasSemana;
                 vmDashBoard.ProductosTopUltimaSemana = listaProductosSemana;
 
                 gResponse.Estado = true;
                 gResponse.Objeto = vmDashBoard;
+
             }
             catch (Exception ex)
             {
@@ -59,9 +69,8 @@ namespace SistemaVenta.AplicacionWeb.Controllers
                 gResponse.Mensaje = ex.Message;
             }
 
+
             return StatusCode(StatusCodes.Status200OK, gResponse);
         }
-
-
     }
 }
