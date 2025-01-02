@@ -44,6 +44,7 @@ namespace SistemaVenta.AplicacionWeb.Controllers
 
         public IActionResult RestablecerClave(string clave)
         {
+            ViewData["Clave"] = clave;
             return View();
         }
     }

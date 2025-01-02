@@ -170,7 +170,7 @@ namespace SistemaVenta.BLL.Implementacion
         {
             string clave_encriptada = _utilidadesService.ConvertirSha256(clave);
 
-            Usuario usuario_encontrado = await _repositorio.Obtener(u=>u.Equals(correo) && u.Clave.Equals(clave_encriptada));
+            Usuario usuario_encontrado = await _repositorio.Obtener(u=>u.Correo.Equals(correo) && u.Clave.Equals(clave_encriptada));
 
             return usuario_encontrado;
         }
